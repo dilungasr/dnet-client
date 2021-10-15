@@ -1,2 +1,2 @@
 # dnet-client
-Take your Websocket utilzation to the large scale . SIMPLE, MINIMAL &amp; POWERFUL!
+Simply take your websocket utilization to the large scale level. MINIMAL &amp; POWERFUL!
