@@ -8,6 +8,10 @@
     "url": "git+https://github.com/dilungasr/dnet-client.git"
   },
   "keywords": [
+    "dnet-client",
+    "dnet",
+    "vue",
+    "reactjs",
     "websocket",
     "socket.io",
     "axios",
