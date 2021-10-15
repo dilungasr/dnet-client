@@ -1,0 +1,25 @@
+{
+  "name": "dnet-client",
+  "version": "1.0.22-beta",
+  "description": "Take your Websocket utilzation to the large scale . SIMPLE, MINIMAL & POWERFUL!",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dilungasr/dnet-client.git"
+  },
+  "keywords": [
+    "websocket",
+    "socket.io",
+    "axios",
+    "socketio",
+    "golang",
+    "nodejs",
+    "expressjs"
+  ],
+  "author": "Dilunga SR<dilungasalumtz@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dilungasr/dnet-client/issues"
+  },
+  "homepage": "https://github.com/dilungasr/dnet-client#readme"
+}
