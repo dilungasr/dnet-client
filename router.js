@@ -42,19 +42,19 @@ function router(context) {
   //   listen to the error
   context.conn.onerror = ev => {
     context.isActive = false;
-    context.onErrorHandler(ev);
+    context._onErrorHandler(ev);
   };
 
   //  when the connection open
   context.conn.onopen = ev => {
     context.isActive = true;
-    context.onOpenHandler(ev);
+    context._onOpenHandler(ev);
   };
 
   // when the connection closes
   context.conn.onclose = ev => {
     context.isActive = false;
-    context.onCloseHandler(ev);
+    context._onCloseHandler(ev);
   };
 }
 

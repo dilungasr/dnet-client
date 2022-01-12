@@ -14,17 +14,17 @@ class Dnet {
   url = "";
 
   // onOpenHandler is called when the ws connection gets opened (The first action to fire)
-  onOpenHandler = () => {
+  _onOpenHandler = () => {
     console.info(`Dnet: Successfully opened connection to ${this.url}`);
   };
 
   // onCloseHandler is called when the ws connection gets closed
-  onCloseHandler = () => {
+  _onCloseHandler = () => {
     console.info("Dnet: dnet closed");
   };
 
   // onErrorHandler is called when there is an error in the connection
-  onErrorHandler = (ev) => {
+  _onErrorHandler = (ev) => {
     console.error(`Dnet: ${ev.data}`);
   };
   // initialize the connection
@@ -40,49 +40,11 @@ class Dnet {
     }
     this.url = url;
     this.conn = new WebSocket(this.url);
-    this.route();
+    this._route();
   }
 
-  //   On method adds the actionHandler to the actionHandlers slice
-  on(action = "", handler) {
-    if (action == "") {
-      console.error("Dnet: action cannot be empty ");
-      return;
-    }
-
-    //validate the handler
-    if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function with one argument");
-      return;
-    }
-
-    this.actionHandlers.push(new ActionHandler(action, handler));
-  }
-
-  //  fire emits the action to the server
-  fire(action = "", data, rec = "") {
-    if (action == "") {
-      console.error("Dnet: action cannot be empty ");
-      return;
-    }
-
-    // set the defualt data
-    if (!data) {
-      data = "";
-    }
-
-    // create the new message
-    const message = new Message(action, data, rec);
-
-    //covert message to json
-    const messageJSON = JSON.stringify(message);
-
-    // send the data to the server
-    this.conn.send(messageJSON);
-  }
-
-  //  route call the handler in the actionHandlers which matches the incoming action
-  route() {
+  //  _route call the handler in the actionHandlers which matches the incoming action
+  _route() {
     router(this);
   }
 
@@ -107,76 +69,77 @@ class Dnet {
     this.onCloseHandler = handler;
   }
 
-  //async for working with asynchronous programming
-  async = {
-    fire: (action = "", data, rec = "") => {
-      if (action == "") {
-        console.error("Dnet: action cannot be empty ");
-        return;
-      }
+  //   On method adds the actionHandler to the actionHandlers slice
+  on(action = "", handler) {
+    if (action == "") {
+      console.error("Dnet: action cannot be empty ");
+      return;
+    }
 
-      // set the defualt data
-      if (!data) {
-        data = "";
-      }
+    //validate the handler
+    if (typeof handler != "function") {
+      console.error("Dnet: handler must be of type function with one argument");
+      return;
+    }
 
-      // create the new message
-      const message = new Message(action, data, rec);
+    this.actionHandlers.push(new ActionHandler(action, handler));
+  }
 
-      //covert message to json
-      const messageJSON = JSON.stringify(message);
+  // _asyncOn is and asynchronous version of the on() method
+  _asyncOn(action = "", handler) {
+    if (action == "") {
+      console.error("Dnet: action cannot be empty ");
+      return;
+    }
 
-      // send the data to the server
-      this.conn.send(messageJSON);
+    //validate the handler
+    if (typeof handler != "function") {
+      console.error("Dnet: handler must be of type function with one argument");
+      return;
+    }
 
-      // return the promise for asynchronous programming
-      return new Promise((resolve, reject) => {
-        this.async.on(action, (res) => {
-          const { ok } = res;
+    this.actionHandlers.push(new ActionHandler(action, handler, true));
+  }
+  // fire emits an action that is propagated to the server
+  // and returns a promise which resolves on success and rejects on bad status code
+  fire(action = "", data, rec = "") {
+    if (action == "") {
+      console.error("Dnet: action cannot be empty ");
+      return;
+    }
 
-          //resolve if everyting is fine
-          if (ok) resolve(res);
-          else reject(res);
-        });
+    // set the defualt data
+    if (!data) {
+      data = "";
+    }
+
+    // create the new message
+    const message = new Message(action, data, rec);
+
+    //covert message to json
+    const messageJSON = JSON.stringify(message);
+
+    // send the data to the server
+    this.conn.send(messageJSON);
+
+    // return the promise for synchronous programming
+    return new Promise((resolve, reject) => {
+      this._asyncOn(action, (res) => {
+        const { ok } = res;
+
+        //resolve if everyting is fine
+        if (ok) resolve(res);
+        else reject(res);
       });
-    },
-    //   On method adds the actionHandler to the actionHandlers slice
-    on: (action = "", handler) => {
-      if (action == "") {
-        console.error("Dnet: action cannot be empty ");
-        return;
-      }
-
-      //validate the handler
-      if (typeof handler != "function") {
-        console.error(
-          "Dnet: handler must be of type function with one argument"
-        );
-        return;
-      }
-
-      this.actionHandlers.push(new ActionHandler(action, handler, true));
-    },
-    onopen: () => {
-      //   return promise for working in async pattern
-      return new Promise((resolve) => {
-        this.onOpenHandler = (ev) => {
-          resolve(ev);
-        };
-      });
-    },
-  };
+    });
+  }
 
   // resets dnet before  actionHandlers are loaded again
   // when root component is revisited again before ws connection get closed
   refresh() {
     const handlers = this.actionHandlers;
 
-    let i = handlers.length;
-
-    while (i--) {
-      handlers.pop();
-    }
+    handlers.length = 0;
   }
 }
 
