@@ -1,22 +1,6 @@
+import { ActionHandler } from "./actionHandler";
+import { Message } from "./message";
 import router from "./router";
-
-// Action holds the information about the handlers to be executed on the particular returned action from the server
-class ActionHandler {
-  constructor(action, handler, isAsync = false) {
-    this.action = action;
-    this.handler = handler;
-    this.isAsync = isAsync;
-  }
-}
-
-// Message  models the data to be sent to the server
-class Message {
-  constructor(action, data, rec) {
-    this.action = action;
-    this.data = data;
-    this.rec = rec;
-  }
-}
 
 // Dnet holds infos about the connection
 class Dnet {
@@ -40,7 +24,7 @@ class Dnet {
   };
 
   // onErrorHandler is called when there is an error in the connection
-  onErrorHandler = ev => {
+  onErrorHandler = (ev) => {
     console.error(`Dnet: ${ev.data}`);
   };
   // initialize the connection
@@ -147,7 +131,7 @@ class Dnet {
 
       // return the promise for asynchronous programming
       return new Promise((resolve, reject) => {
-        this.async.on(action, res => {
+        this.async.on(action, (res) => {
           const { ok } = res;
 
           //resolve if everyting is fine
@@ -175,12 +159,12 @@ class Dnet {
     },
     onopen: () => {
       //   return promise for working in async pattern
-      return new Promise(resolve => {
-        this.onOpenHandler = ev => {
+      return new Promise((resolve) => {
+        this.onOpenHandler = (ev) => {
           resolve(ev);
         };
       });
-    }
+    },
   };
 
   // resets dnet before  actionHandlers are loaded again
