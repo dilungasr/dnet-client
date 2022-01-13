@@ -1,10 +1,11 @@
 import { ActionHandler } from "./actionHandler";
 import { Message } from "./message";
 import router from "./router";
+import { Subrouter } from "./subrouter";
 
 // Dnet holds infos about the connection
 class Dnet {
-  // actionHandlers are the functions to be execeuted for the particular action from the server
+  // actionHandlers are the functions to be executed for the particular action from the server
   actionHandlers = [];
 
   //isActive tells whether the dnet connection is active or not
@@ -30,8 +31,7 @@ class Dnet {
   // initialize the connection
   init(url = "") {
     if (url === "") {
-      console.error("Dnet: url cannot be empty");
-      return;
+      throw new Error("Dnet: url cannot be empty");
     }
 
     if (this.isActive) {
@@ -52,21 +52,28 @@ class Dnet {
   onopen(handler = this.onOpenHandler) {
     //validate the handler
     if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function");
-      return;
+      throw new Error("Dnet: handler must be of type function");
     }
 
-    this.onOpenHandler = handler;
+    this._onOpenHandler = handler;
   }
 
   //onclose set the oonCloseHandler which is called when ws connection gets closed
   onclose(handler = this.onCloseHandler) {
     if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function");
-      return;
+      throw new Error("Dnet: handler must be of type function");
     }
 
-    this.onCloseHandler = handler;
+    this._onCloseHandler = handler;
+  }
+
+  //onclose set the oonCloseHandler which is called when ws connection gets closed
+  onerror(handler = this._onErrorHandler) {
+    if (typeof handler != "function") {
+      throw new Error("Dnet: handler must be of type function");
+    }
+
+    this._onCloseHandler = handler;
   }
 
   //   On method adds the actionHandler to the actionHandlers slice
@@ -140,6 +147,11 @@ class Dnet {
     const handlers = this.actionHandlers;
 
     handlers.length = 0;
+  }
+
+  // router creates a subrouter
+  router(prefix) {
+    return new Subrouter(prefix, this);
   }
 }
 
