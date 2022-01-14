@@ -1,9 +1,9 @@
 // router watches the incoming action and calls the matching handler, watches error
 function router(context) {
-  let actionHandlers = context.actionHandlers;
+  let actionHandlers = context._actionHandlers;
 
   //   listen on the message
-  context.conn.onmessage = ev => {
+  context._conn.onmessage = (ev) => {
     const { action, data, status, sender } = JSON.parse(ev.data);
 
     // call all actionHandlers matching the incoming action
@@ -29,30 +29,30 @@ function router(context) {
 
         if (actionHandlers[i].isAsync) {
           actionHandlers = actionHandlers.filter(
-            actionHandler => actionHandler !== actionHandlers[i]
+            (actionHandler) => actionHandler !== actionHandlers[i]
           );
 
           // re-associate the new context.actionHandlers address with the actionHandlers' address
-          context.actionHandlers = actionHandlers;
+          context._actionHandlers = actionHandlers;
         }
       }
     }
   };
 
   //   listen to the error
-  context.conn.onerror = ev => {
+  context._conn.onerror = (ev) => {
     context.isActive = false;
     context._onErrorHandler(ev);
   };
 
   //  when the connection open
-  context.conn.onopen = ev => {
+  context._conn.onopen = (ev) => {
     context.isActive = true;
     context._onOpenHandler(ev);
   };
 
   // when the connection closes
-  context.conn.onclose = ev => {
+  context._conn.onclose = (ev) => {
     context.isActive = false;
     context._onCloseHandler(ev);
   };

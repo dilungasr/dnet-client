@@ -6,7 +6,7 @@ import { Subrouter } from "./subrouter";
 // Dnet holds infos about the connection
 class Dnet {
   // actionHandlers are the functions to be executed for the particular action from the server
-  actionHandlers = [];
+  _actionHandlers = [];
 
   //isActive tells whether the dnet connection is active or not
   isActive = false;
@@ -39,11 +39,11 @@ class Dnet {
       return;
     }
     this.url = url;
-    this.conn = new WebSocket(this.url);
+    this._conn = new WebSocket(this.url);
     this._route();
   }
 
-  //  _route call the handler in the actionHandlers which matches the incoming action
+  //  _route initializes the routing process
   _route() {
     router(this);
   }
@@ -89,7 +89,7 @@ class Dnet {
       return;
     }
 
-    this.actionHandlers.push(new ActionHandler(action, handler));
+    this._actionHandlers.push(new ActionHandler(action, handler));
   }
 
   // _asyncOn is and asynchronous version of the on() method
@@ -105,7 +105,7 @@ class Dnet {
       return;
     }
 
-    this.actionHandlers.push(new ActionHandler(action, handler, true));
+    this._actionHandlers.push(new ActionHandler(action, handler, true));
   }
   // fire emits an action that is propagated to the server
   // and returns a promise which resolves on success and rejects on bad status code
@@ -127,7 +127,7 @@ class Dnet {
     const messageJSON = JSON.stringify(message);
 
     // send the data to the server
-    this.conn.send(messageJSON);
+    this._conn.send(messageJSON);
 
     // return the promise for synchronous programming
     return new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ class Dnet {
   // resets dnet before  actionHandlers are loaded again
   // when root component is revisited again before ws connection get closed
   refresh() {
-    const handlers = this.actionHandlers;
+    const handlers = this._actionHandlers;
 
     handlers.length = 0;
   }

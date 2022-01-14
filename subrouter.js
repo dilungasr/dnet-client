@@ -6,7 +6,8 @@ export class Subrouter {
   // take path prefix
   constructor(prefix = "", parent) {
     this._prefix = prefix;
-    this.actionHandlers = parent.actionHandlers;
+    this._actionHandlers = parent._actionHandlers;
+    this._conn = parent._conn;
   }
   //   On method adds the actionHandler to the actionHandlers action
   on(action = "", handler) {
@@ -22,7 +23,7 @@ export class Subrouter {
     }
 
     const fullAction = this._prefix + action;
-    this.actionHandlers.push(new ActionHandler(fullAction, handler));
+    this._actionHandlers.push(new ActionHandler(fullAction, handler));
   }
 
   // _asyncOn is and asynchronous version of the on() method
@@ -38,7 +39,7 @@ export class Subrouter {
       return;
     }
 
-    this.actionHandlers.push(new ActionHandler(action, handler, true));
+    this._actionHandlers.push(new ActionHandler(action, handler, true));
   }
   // fire emits an action that is propagated to the server
   // and returns a promise which resolves on success and rejects on bad status code
@@ -61,7 +62,7 @@ export class Subrouter {
     const messageJSON = JSON.stringify(message);
 
     // send the data to the server
-    this.conn.send(messageJSON);
+    this._conn.send(messageJSON);
 
     // return the promise for synchronous programming
     return new Promise((resolve, reject) => {
@@ -82,5 +83,3 @@ export class Subrouter {
     return new Subrouter(prefix, this);
   }
 }
-
-export default Dnet;
