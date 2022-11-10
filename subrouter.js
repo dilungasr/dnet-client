@@ -11,11 +11,6 @@ export class Subrouter {
   }
   //   On method adds the actionHandler to the actionHandlers action
   on(action = "", handler) {
-    if (action == "") {
-      console.error("Dnet: action cannot be empty ");
-      return;
-    }
-
     //validate the handler
     if (typeof handler != "function") {
       console.error("Dnet: handler must be of type function with one argument");
@@ -28,11 +23,6 @@ export class Subrouter {
 
   // _asyncOn is and asynchronous version of the on() method
   _asyncOn(action = "", handler) {
-    if (action == "") {
-      console.error("Dnet: action cannot be empty ");
-      return;
-    }
-
     //validate the handler
     if (typeof handler != "function") {
       console.error("Dnet: handler must be of type function with one argument");
