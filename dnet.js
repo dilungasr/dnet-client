@@ -136,7 +136,7 @@ class Dnet {
   }
 
   /**
-   * Triggers an action to server i.e sends data to server by hitting the given action endpoint
+   * Triggers an action to the server i.e sends data to the server by hitting the given action endpoint
    * @param {string} action The action to fire
    * @param {Object} data Data to send to the server
    * @param {string} rec You can pass the ID of the recipient here if your server
@@ -188,8 +188,8 @@ class Dnet {
   }
 
   /**
-   * Creates a subrouter with the passed action's base path
-   * @param {string} basePath
+   * Creates a subrouter using the passed based path
+   * @param {string} basePath Action path to be used as the base
    * @returns {Subrouter} Subrouter
    * @example
    * const router = dnet.router("/users");

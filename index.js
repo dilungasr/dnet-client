@@ -1,4 +1,6 @@
 import Dnet from "./dnet";
 
-// The main dnet connection context  .... only single allowed per app
+/**
+ * Instanciates the dnet API
+ */
 export const dnet = new Dnet();

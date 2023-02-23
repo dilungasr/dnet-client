@@ -2,8 +2,8 @@ import { ActionHandler } from "./actionHandler";
 import { Message } from "./message";
 
 /**
- * Subrouter models the sub router and creates its base path by combining the parent's
- *  base path with its new base path
+ * Subrouter models the sub router and creates its final base path by combining the parent's
+ *  base path with the given base path
  * @example
  * const router = dnet.router("/users");
  * const updateRouter = router.router("/update")
@@ -14,9 +14,23 @@ import { Message } from "./message";
  * })
  */
 export class Subrouter {
-  // take path prefix
-  constructor(prefix = "", parent) {
-    this._prefix = prefix;
+  /**
+   * Subrouter models the sub router and creates its final base path by combining the parent's
+   *  base path with the given base path
+   * @param {string} base The base path for this sub router
+   * @param {Dnet | Subrouter} parent The parent router.
+   *
+   * @example
+   * const router = dnet.router("/users");
+   * const updateRouter = router.router("/update")
+   *
+   * //listen to '/users/update/name'
+   * updateRouter.on("/name", ({data}) => {
+   * //do something ...
+   * })
+   */
+  constructor(base, parent) {
+    this._base = base;
     this._actionHandlers = parent._actionHandlers;
     this._conn = parent._conn;
   }
@@ -33,7 +47,7 @@ export class Subrouter {
       return;
     }
 
-    const fullAction = this._prefix + action || "";
+    const fullAction = this._base + action || "";
     this._actionHandlers.push(new ActionHandler(fullAction, handler));
   }
 
@@ -49,7 +63,7 @@ export class Subrouter {
   }
 
   /**
-   * Triggers an action to server i.e sends data to server by hitting the given action endpoint
+   * Triggers an action to the server i.e sends data to the server by hitting the given action endpoint
    * @param {string} action The action to fire
    * @param {Object} data Data to send to the server
    * @param {string} rec You can pass the ID of the recipient here if your server
@@ -68,7 +82,7 @@ export class Subrouter {
     }
 
     // create the new message
-    const fullAction = this._prefix + action;
+    const fullAction = this._base + action;
     const message = new Message(fullAction, data, rec);
 
     //covert message to json
@@ -105,8 +119,8 @@ export class Subrouter {
    */
 
   router(basePath) {
-    const prefix = this._prefix + basePath;
+    const base = this._base + basePath;
 
-    return new Subrouter(prefix, this);
+    return new Subrouter(base, this);
   }
 }
