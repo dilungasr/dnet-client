@@ -2,7 +2,8 @@ import { ActionHandler } from "./actionHandler";
 import { Message } from "./message";
 
 /**
- * Keeps the parent's action as the base for all of its actions
+ * Subrouter models the sub router and creates its base path by combining the parent's
+ *  base path with its new base path
  * @example
  * const router = dnet.router("/users");
  * const updateRouter = router.router("/update")
@@ -89,7 +90,8 @@ export class Subrouter {
   }
 
   /**
-   * Creates a subrouter based on the parent router's base path
+   * Creates a subrouter with a base path that is a combination of the parent's base path
+   * and its new base path (child base path)
    * @param {string} basePath
    * @returns {Subrouter} Subrouter
    * @example

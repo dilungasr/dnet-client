@@ -177,7 +177,7 @@ class Dnet {
 
   /**
    * Cleans out dnet for handlers to be loaded anew.
-   * 
+   *
    * This is extemely useful when the root page where your dnet listeners are defined gets revisited. It prevents
    * duplicate listeners from being defined again.
    */
@@ -188,7 +188,7 @@ class Dnet {
   }
 
   /**
-   * Creates a subrouter based on the parent router's base path
+   * Creates a subrouter with the passed action's base path
    * @param {string} basePath
    * @returns {Subrouter} Subrouter
    * @example
