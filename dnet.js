@@ -200,9 +200,7 @@ class Dnet {
    * })
    */
   router(basePath) {
-    const prefix = this._prefix + basePath;
-
-    return new Subrouter(prefix, this);
+    return new Subrouter(basePath, this);
   }
 }
 
