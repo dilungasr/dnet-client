@@ -3,12 +3,16 @@ import { Message } from "./message";
 import router from "./router";
 import { Subrouter } from "./subrouter";
 
-// Dnet holds infos about the connection
+/**
+ * Holds, manages and exposes dnet state and functionalities (API)
+ */
 class Dnet {
   // actionHandlers are the functions to be executed for the particular action from the server
   _actionHandlers = [];
 
-  //isActive tells whether the dnet connection is active or not
+  /**
+   *tells whether the websocket connection is active or not
+   * */
   isActive = false;
 
   // url to connect to the websocket
@@ -16,26 +20,31 @@ class Dnet {
 
   // onOpenHandler is called when the ws connection gets opened (The first action to fire)
   _onOpenHandler = () => {
-    console.info(`Dnet: Successfully opened connection to ${this.url}`);
+    console.info(`[dnet] Successfully opened connection to ${this.url}`);
   };
 
   // onCloseHandler is called when the ws connection gets closed
   _onCloseHandler = () => {
-    console.info("Dnet: dnet closed");
+    console.info("[dnet] dnet closed");
   };
 
   // onErrorHandler is called when there is an error in the connection
   _onErrorHandler = (ev) => {
-    console.error(`Dnet: ${ev.data}`);
+    console.error(`[dnet] ${ev.data}`);
   };
-  // initialize the connection
-  init(url = "") {
+
+  /**
+   *
+   * @param {string} url The endpoint of the server-side dnet"
+   * @returns
+   */
+  init(url) {
     if (url === "") {
-      throw new Error("Dnet: url cannot be empty");
+      throw new Error("[dnet] url cannot be empty");
     }
 
     if (this.isActive) {
-      console.info("Dnet: connection is still active no need to reconnect");
+      console.info("[dnet] connection is still active no need to reconnect");
       return;
     }
     this.url = url;
@@ -48,44 +57,60 @@ class Dnet {
     router(this);
   }
 
-  //   onopen sets the onOpenHandler which is called when the ws is opened
+  /**
+   * Sets the function to be called when websocket connection gets opened
+   * @param {function} handler Function to call when websocket connection gets opened
+   */
   onopen(handler = this.onOpenHandler) {
     //validate the handler
     if (typeof handler != "function") {
-      throw new Error("Dnet: handler must be of type function");
+      throw new Error("[dnet] handler must be of type function");
     }
 
     this._onOpenHandler = handler;
   }
 
-  //onclose set the oonCloseHandler which is called when ws connection gets closed
+  /**
+   * Sets the function to be called when websocket connection gets closed
+   * @param {function} handler Function to call when websocket connection gets closed
+   */
   onclose(handler = this.onCloseHandler) {
     if (typeof handler != "function") {
-      throw new Error("Dnet: handler must be of type function");
+      throw new Error("[dnet] handler must be of type function");
     }
 
     this._onCloseHandler = handler;
   }
 
-  //onclose set the oonCloseHandler which is called when ws connection gets closed
+  /**
+   * Sets the function to be called when there is a connection error
+   * @param {function} handler Function when there is a connection error
+   */
   onerror(handler = this._onErrorHandler) {
     if (typeof handler != "function") {
-      throw new Error("Dnet: handler must be of type function");
+      throw new Error("[dnet] handler must be of type function");
     }
 
     this._onCloseHandler = handler;
   }
 
-  //   On method adds the actionHandler to the actionHandlers slice
-  on(action = "", handler) {
+  /**
+   * Attachs handler to the action
+   * @param {string} action Holds the action to listen to
+   * @param {function} handler Function to call when the action is triggered by the server
+   * @returns
+   */
+  on(action, handler) {
     if (action == "") {
-      console.error("Dnet: action cannot be empty ");
+      console.error("[dnet] action cannot be empty ");
       return;
     }
 
     //validate the handler
     if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function with one argument");
+      console.error(
+        "[dnet] handler must be of type function with one argument"
+      );
       return;
     }
 
@@ -95,23 +120,32 @@ class Dnet {
   // _asyncOn is and asynchronous version of the on() method
   _asyncOn(action = "", handler) {
     if (action == "") {
-      console.error("Dnet: action cannot be empty ");
+      console.error("[dnet] action cannot be empty ");
       return;
     }
 
     //validate the handler
     if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function with one argument");
+      console.error(
+        "[dnet] handler must be of type function with one argument"
+      );
       return;
     }
 
     this._actionHandlers.push(new ActionHandler(action, handler, true));
   }
-  // fire emits an action that is propagated to the server
-  // and returns a promise which resolves on success and rejects on bad status code
+
+  /**
+   * Triggers an action to server i.e sends data to server by hitting the given action endpoint
+   * @param {string} action The action to fire
+   * @param {Object} data Data to send to the server
+   * @param {string} rec You can pass the ID of the recipient here if your server
+   *  expects to access it using the dnet context
+   * @returns
+   */
   fire(action = "", data, rec = "") {
     if (action == "") {
-      console.error("Dnet: action cannot be empty ");
+      console.error("[dnet] action cannot be empty ");
       return;
     }
 
@@ -141,16 +175,34 @@ class Dnet {
     });
   }
 
-  // resets dnet before  actionHandlers are loaded again
-  // when root component is revisited again before ws connection get closed
+  /**
+   * Cleans out dnet for handlers to be loaded anew.
+   * 
+   * This is extemely useful when the root page where your dnet listeners are defined gets revisited. It prevents
+   * duplicate listeners from being defined again.
+   */
   refresh() {
     const handlers = this._actionHandlers;
 
     handlers.length = 0;
   }
 
-  // router creates a subrouter
-  router(prefix) {
+  /**
+   * Creates a subrouter based on the parent router's base path
+   * @param {string} basePath
+   * @returns {Subrouter} Subrouter
+   * @example
+   * const router = dnet.router("/users");
+   * const updateRouter = router.router("/update")
+   *
+   * //listen to '/users/update/name'
+   * updateRouter.on("/name", ({data}) => {
+   * //do something ...
+   * })
+   */
+  router(basePath) {
+    const prefix = this._prefix + basePath;
+
     return new Subrouter(prefix, this);
   }
 }

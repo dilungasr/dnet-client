@@ -1,7 +1,17 @@
 import { ActionHandler } from "./actionHandler";
 import { Message } from "./message";
 
-// Subrouter manages action grouping
+/**
+ * Keeps the parent's action as the base for all of its actions
+ * @example
+ * const router = dnet.router("/users");
+ * const updateRouter = router.router("/update")
+ *
+ * //listen to '/users/update/name'
+ * updateRouter.on("/name", ({data}) => {
+ * //do something ...
+ * })
+ */
 export class Subrouter {
   // take path prefix
   constructor(prefix = "", parent) {
@@ -9,15 +19,20 @@ export class Subrouter {
     this._actionHandlers = parent._actionHandlers;
     this._conn = parent._conn;
   }
-  //   On method adds the actionHandler to the actionHandlers action
-  on(action = "", handler) {
+  /**
+   * Attachs handler to the action
+   * @param {string} action Holds the action to listen to
+   * @param {function} handler Function that is called when the action is triggered by the server
+   * @returns
+   */
+  on(action, handler) {
     //validate the handler
     if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function with one argument");
+      console.error("[dnet] handler must be of type function");
       return;
     }
 
-    const fullAction = this._prefix + action;
+    const fullAction = this._prefix + action || "";
     this._actionHandlers.push(new ActionHandler(fullAction, handler));
   }
 
@@ -31,11 +46,18 @@ export class Subrouter {
 
     this._actionHandlers.push(new ActionHandler(action, handler, true));
   }
-  // fire emits an action that is propagated to the server
-  // and returns a promise which resolves on success and rejects on bad status code
-  fire(action = "", data, rec = "") {
+
+  /**
+   * Triggers an action to server i.e sends data to server by hitting the given action endpoint
+   * @param {string} action The action to fire
+   * @param {Object} data Data to send to the server
+   * @param {string} rec You can pass the ID of the recipient here if your server
+   *  expects to access it using the dnet context
+   * @returns
+   */
+  fire(action, data, rec) {
     if (action == "") {
-      console.error("Dnet: action cannot be empty ");
+      console.error("[dnet] action cannot be empty ");
       return;
     }
 
@@ -66,9 +88,22 @@ export class Subrouter {
     });
   }
 
-  //   router creates a child subrouter
-  router(childPrefix) {
-    const prefix = this._prefix + childPrefix;
+  /**
+   * Creates a subrouter based on the parent router's base path
+   * @param {string} basePath
+   * @returns {Subrouter} Subrouter
+   * @example
+   * const router = dnet.router("/users");
+   * const updateRouter = router.router("/update")
+   *
+   * //listen to '/users/update/name'
+   * updateRouter.on("/name", ({data}) => {
+   * //do something ...
+   * })
+   */
+
+  router(basePath) {
+    const prefix = this._prefix + basePath;
 
     return new Subrouter(prefix, this);
   }
