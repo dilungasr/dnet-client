@@ -188,15 +188,14 @@ class Dnet {
   }
 
   /**
-   * Creates a subrouter using the passed based path
-   * @param {string} basePath Action path to be used as the base
+   * Creates a subrouter on the dnet root
+   * @param {string} basePath base action path for this sub router
    * @returns {Subrouter} Subrouter
    * @example
    * const router = dnet.router("/users");
-   * const updateRouter = router.router("/update")
    *
-   * //listen to '/users/update/name'
-   * updateRouter.on("/name", ({data}) => {
+   * //listen to '/users/online'
+   * router.on("/online", ({data}) => {
    * //do something ...
    * })
    */

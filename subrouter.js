@@ -104,9 +104,8 @@ export class Subrouter {
   }
 
   /**
-   * Creates a subrouter with a base path that is a combination of the parent's base path
-   * and its new base path (child base path)
-   * @param {string} basePath
+   * Creates a subrouter on the parent router
+   * @param {string} basePath sub-base path for this sub router
    * @returns {Subrouter} Subrouter
    * @example
    * const router = dnet.router("/users");
