@@ -166,11 +166,11 @@ class Dnet {
     // return the promise for synchronous programming
     return new Promise((resolve, reject) => {
       this._asyncOn(action, (res) => {
-        const { ok } = res;
+        const { ok, isSource } = res;
 
         //resolve if everyting is fine
-        if (ok) resolve(res);
-        else reject(res);
+        if (isSource && ok) resolve(res);
+        else if (isSource) reject(res);
       });
     });
   }

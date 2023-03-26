@@ -4,7 +4,7 @@ function router(context) {
 
   //   listen on the message
   context._conn.onmessage = (ev) => {
-    const { action, data, status, sender } = JSON.parse(ev.data);
+    const { action, data, status, sender, isSource } = JSON.parse(ev.data);
 
     // call all actionHandlers matching the incoming action
     let i = actionHandlers.length;
@@ -20,17 +20,16 @@ function router(context) {
         if (status >= 200 && status < 300) ok = true;
 
         // take the response data from the server
-        const res = { data, status, ok, sender };
+        const res = { data, status, ok, sender, isSource };
 
         //   call the given handler
         actionHandlers[i].handler(res);
 
         // remove the ActionHandler if it's asynchronous
-
         if (actionHandlers[i].isAsync) {
-          actionHandlers = actionHandlers.filter(
-            (actionHandler) => actionHandler !== actionHandlers[i]
-          );
+          actionHandlers = actionHandlers.filter((actionHandler) => {
+            return actionHandler !== actionHandlers[i];
+          });
 
           // re-associate the new context.actionHandlers address with the actionHandlers' address
           context._actionHandlers = actionHandlers;
