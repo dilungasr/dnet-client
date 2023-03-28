@@ -20,7 +20,7 @@ function router(context) {
       if (actionHandler.action === action) {
         //check async id for asynchronous actionHandlers
         if (actionHandler.isAsync && actionHandler.asyncId !== asyncId) {
-          return;
+          continue;
         }
 
         // ok tells if everything went well not....
