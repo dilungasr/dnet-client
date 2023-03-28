@@ -1,6 +1,6 @@
 {
   "name": "dnet-client",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Simply take your websocket utilization to the large scale level. SIMPLE, MINIMAL & POWERFUL!",
   "main": "index.js",
   "repository": {
