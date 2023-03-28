@@ -6,7 +6,7 @@ export class ActionHandler {
   /**
    *
    * @param {string} action
-   * @param {(res: {data: any, sender: string, status: number, ok: boolean, isSource: boolean}) => void} handler
+   * @param {(res: {data: any, sender: string, status: number, ok: boolean | undefined, isSource: boolean}) => void} handler
    * @param {bool} isAsync
    * @param {string} asyncId
    */
