@@ -1,5 +1,6 @@
 import { ActionHandler } from "./actionHandler";
 import { Message } from "./message";
+import { duuid } from "./uuid";
 
 /**
  * Subrouter models the sub router and creates its final base path by combining the parent's
@@ -51,15 +52,28 @@ export class Subrouter {
     this._actionHandlers.push(new ActionHandler(fullAction, handler));
   }
 
-  // _asyncOn is and asynchronous version of the on() method
-  _asyncOn(action = "", handler) {
-    //validate the handler
-    if (typeof handler != "function") {
-      console.error("Dnet: handler must be of type function with one argument");
+  /** _asyncOn is an asynchronous version  on() method
+   * @param {string} action
+   * @param {(res: {data: any, sender: string, status: number, ok: boolean, isSource: boolean}) => void} handler
+   * @param {string} asyncId
+   */
+  _asyncOn(action = "", handler, asyncId) {
+    if (action == "") {
+      console.error("[dnet] action cannot be empty ");
       return;
     }
 
-    this._actionHandlers.push(new ActionHandler(action, handler, true));
+    //validate the handler
+    if (typeof handler != "function") {
+      console.error(
+        "[dnet] handler must be of type function with one argument"
+      );
+      return;
+    }
+
+    this._actionHandlers.push(
+      new ActionHandler(action, handler, true, asyncId)
+    );
   }
 
   /**
@@ -81,9 +95,12 @@ export class Subrouter {
       data = "";
     }
 
+    //generate an async id
+    const asyncId = duuid.generate();
+
     // create the new message
     const fullAction = this._base + action;
-    const message = new Message(fullAction, data, rec);
+    const message = new Message(fullAction, data, rec, asyncId);
 
     //covert message to json
     const messageJSON = JSON.stringify(message);
@@ -93,13 +110,17 @@ export class Subrouter {
 
     // return the promise for synchronous programming
     return new Promise((resolve, reject) => {
-      this._asyncOn(fullAction, (res) => {
-        const { ok, isSource } = res;
+      this._asyncOn(
+        fullAction,
+        (res) => {
+          const { ok } = res;
 
-        //resolve if everyting is fine
-        if (isSource && ok) resolve(res);
-        else if (isSource) reject(res);
-      });
+          //resolve if everyting is fine
+          if (ok) resolve(res);
+          else reject(res);
+        },
+        asyncId
+      );
     });
   }
 

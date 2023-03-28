@@ -2,12 +2,16 @@ import { ActionHandler } from "./actionHandler";
 import { Message } from "./message";
 import router from "./router";
 import { Subrouter } from "./subrouter";
+import { duuid } from "./uuid";
 
 /**
  * Holds, manages and exposes dnet state and functionalities (API)
+ * @property {}
  */
 class Dnet {
-  // actionHandlers are the functions to be executed for the particular action from the server
+  /** actionHandlers are the functions to be executed for the particular action from the server
+   * @type {ActionHandler[]}
+   */
   _actionHandlers = [];
 
   /**
@@ -117,8 +121,12 @@ class Dnet {
     this._actionHandlers.push(new ActionHandler(action, handler));
   }
 
-  // _asyncOn is and asynchronous version of the on() method
-  _asyncOn(action = "", handler) {
+  /** _asyncOn is an asynchronous version  on() method
+   * @param {string} action
+   * @param {(res: {data: any, sender: string, status: number, ok: boolean, isSource: boolean}) => void} handler
+   * @param {string} asyncId
+   */
+  _asyncOn(action = "", handler, asyncId) {
     if (action == "") {
       console.error("[dnet] action cannot be empty ");
       return;
@@ -132,7 +140,9 @@ class Dnet {
       return;
     }
 
-    this._actionHandlers.push(new ActionHandler(action, handler, true));
+    this._actionHandlers.push(
+      new ActionHandler(action, handler, true, asyncId)
+    );
   }
 
   /**
@@ -154,8 +164,11 @@ class Dnet {
       data = "";
     }
 
+    //generate an async id
+    const asyncId = duuid.generate();
+
     // create the new message
-    const message = new Message(action, data, rec);
+    const message = new Message(action, data, rec, asyncId);
 
     //covert message to json
     const messageJSON = JSON.stringify(message);
@@ -165,13 +178,17 @@ class Dnet {
 
     // return the promise for synchronous programming
     return new Promise((resolve, reject) => {
-      this._asyncOn(action, (res) => {
-        const { ok, isSource } = res;
+      this._asyncOn(
+        action,
+        (res) => {
+          const { ok } = res;
 
-        //resolve if everyting is fine
-        if (isSource && ok) resolve(res);
-        else if (isSource) reject(res);
-      });
+          //resolve if everyting is fine
+          if (ok) resolve(res);
+          else reject(res);
+        },
+        asyncId
+      );
     });
   }
 
