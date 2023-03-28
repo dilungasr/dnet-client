@@ -1,9 +1,19 @@
-// Action holds the information about the handlers to be executed on the particular returned action from the server
+/**
+ * Action holds the information about the handlers to be executed on the particular action
+ *
+ */
 export class ActionHandler {
-    constructor(action, handler, isAsync = false) {
-      this.action = action;
-      this.handler = handler;
-      this.isAsync = isAsync;
-    }
+  /**
+   *
+   * @param {string} action
+   * @param {(res: {data: any, sender: string, status: number, ok: boolean, isSource: boolean}) => void} handler
+   * @param {bool} isAsync
+   * @param {string} asyncId
+   */
+  constructor(action, handler, isAsync = false, asyncId) {
+    this.action = action;
+    this.handler = handler;
+    this.isAsync = isAsync;
+    this.asyncId = asyncId;
   }
-  
+}
