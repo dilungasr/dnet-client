@@ -1,15 +1,28 @@
-// router watches the incoming action and calls the matching handler, watches error
+import Dnet from "./dnet";
+import { duuid } from "./uuid";
+
+/** router watches the incoming action and calls the matching handler, watches error
+ * @param {Dnet} context
+ */
 function router(context) {
   let actionHandlers = context._actionHandlers;
 
   //   listen on the message
   context._conn.onmessage = (ev) => {
-    const { action, data, status, sender, isSource } = JSON.parse(ev.data);
+    const { action, data, status, sender, isSource, asyncId } = JSON.parse(
+      ev.data
+    );
 
     // call all actionHandlers matching the incoming action
     let i = actionHandlers.length;
     while (i--) {
-      if (actionHandlers[i].action === action) {
+      const actionHandler = actionHandlers[i];
+      if (actionHandler.action === action) {
+        //check async id for asynchronous actionHandlers
+        if (actionHandler.isAsync && actionHandler.asyncId !== asyncId) {
+          return;
+        }
+
         // ok tells if everything went well not....
         // true for  successfully  the request was successfully received, understood, and accepted
         // false for anything else
@@ -22,17 +35,20 @@ function router(context) {
         // take the response data from the server
         const res = { data, status, ok, sender, isSource };
 
-        //   call the given handler
-        actionHandlers[i].handler(res);
+        //   call the handler
+        actionHandler.handler(res);
 
         // remove the ActionHandler if it's asynchronous
-        if (actionHandlers[i].isAsync) {
-          actionHandlers = actionHandlers.filter((actionHandler) => {
-            return actionHandler !== actionHandlers[i];
+        if (actionHandler.isAsync) {
+          actionHandlers = actionHandlers.filter((actionH) => {
+            return actionHandler !== actionH;
           });
 
           // re-associate the new context.actionHandlers address with the actionHandlers' address
           context._actionHandlers = actionHandlers;
+
+          //  delete the async id
+          duuid.delete(actionHandler.asyncId);
         }
       }
     }
