@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/dilungasr/dnet-client/issues"
   },
-  "homepage": "https://github.com/dilungasr/dnet-client#readme"
+  "homepage": "https://github.com/dilungasr/dnet-client#readme",
+  "dependencies": {
+    "uuid": "^9.0.0"
+  }
 }
