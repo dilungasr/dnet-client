@@ -199,9 +199,8 @@ class Dnet {
    * duplicate listeners from being defined again.
    */
   refresh() {
-    const handlers = this._actionHandlers;
-
-    handlers.length = 0;
+    this._actionHandlers.length = 0;
+    duuid.clear();
   }
 
   /**
