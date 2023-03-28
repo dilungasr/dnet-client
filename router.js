@@ -18,8 +18,11 @@ function router(context) {
     while (i--) {
       const actionHandler = actionHandlers[i];
       if (actionHandler.action === action) {
-        //check async id for asynchronous actionHandlers
-        if (actionHandler.isAsync && actionHandler.asyncId !== asyncId) {
+        //check async id and source of asynchronous actionHandlers
+        if (
+          actionHandler.isAsync &&
+          (!isSource || actionHandler.asyncId !== asyncId)
+        ) {
           continue;
         }
 
@@ -32,14 +35,12 @@ function router(context) {
         //check for the good response
         if (status >= 200 && status < 300) ok = true;
 
-        // take the response data from the server
-        const res = { data, status, ok, sender, isSource };
-
-        //   call the handler
-        actionHandler.handler(res);
-
         // remove the ActionHandler if it's asynchronous
         if (actionHandler.isAsync) {
+          const res = { data, status, ok, sender, isSource };
+          //   call the handler
+          actionHandler.handler(res);
+
           actionHandlers = actionHandlers.filter((actionH) => {
             return actionHandler !== actionH;
           });
@@ -49,6 +50,11 @@ function router(context) {
 
           //  delete the async id
           duuid.delete(actionHandler.asyncId);
+        } else if (ok) {
+          // only call non-async handlers when ok is true
+          const res = { data, status, sender, isSource };
+
+          actionHandler.handler(res);
         }
       }
     }
